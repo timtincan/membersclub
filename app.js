@@ -6,6 +6,8 @@ const LocalStrategy = require("passport-local").Strategy;
 const dbConnect = require("./models");
 const UserModel = require("./models/user");
 const PostModel = require("./models/post");
+const bcrypt = require("bcryptjs");
+const { body, validationResult } = require("express-validator");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
@@ -31,10 +33,13 @@ passport.use(
             if (!user) {
                 return done(null, false, { message: "Incorrect username" });
             }
-            if (user.password !== password) {
-                return done(null, false, { message: "Incorrect password" });
-            }
-            return done(null, user);
+            bcrypt.compare(password, user.password, (err, res) => {
+                if (res) {
+                    return done(null, user);
+                } else {
+                    return done(null, false, { message: "Incorrect password" });
+                }
+            });
         });
     })
 );
@@ -62,6 +67,13 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/", indexRouter);
 app.use("/signup", signupRouter);
 app.use("/login", loginRouter);
+
+app.get("/logout", (req, res, next) => {
+    req.logout((err) => {
+        if (err) return next(err);
+        res.redirect("/");
+    });
+});
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
