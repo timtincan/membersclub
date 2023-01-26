@@ -26,7 +26,6 @@ const UserSchema = new Schema({
         type: Boolean,
         required: true,
     },
-    posts: [{ type: Schema.Types.ObjectId, ref: "Post" }],
 });
 
 UserSchema.virtual("name").get(function () {

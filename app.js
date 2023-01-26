@@ -7,7 +7,6 @@ const dbConnect = require("./models");
 const UserModel = require("./models/user");
 const PostModel = require("./models/post");
 const bcrypt = require("bcryptjs");
-const { body, validationResult } = require("express-validator");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
@@ -15,6 +14,7 @@ const logger = require("morgan");
 const indexRouter = require("./routes/index");
 const signupRouter = require("./routes/signup");
 const loginRouter = require("./routes/login");
+const joinClubRouter = require("./routes/joinclub");
 
 dbConnect().catch((err) => console.log(err));
 
@@ -54,7 +54,13 @@ passport.deserializeUser(function (id, done) {
     });
 });
 
-app.use(session({ secret: "cat", resave: false, saveUninitialized: true }));
+app.use(
+    session({
+        secret: process.env.SESSION_SECRET,
+        resave: false,
+        saveUninitialized: true,
+    })
+);
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -64,9 +70,15 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
+app.use(function (req, res, next) {
+    res.locals.currentUser = req.user;
+    next();
+});
+
 app.use("/", indexRouter);
 app.use("/signup", signupRouter);
 app.use("/login", loginRouter);
+app.use("/joinclub", joinClubRouter);
 
 app.get("/logout", (req, res, next) => {
     req.logout((err) => {

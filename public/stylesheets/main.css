@@ -21,9 +21,21 @@ header {
     margin: 0 .3em;
 }
 
+/* Content and Posts */
+
+.content {
+    width: 50%;
+    margin: 0 auto;
+}
+
+.post {
+    border: 2px solid #E3E3E3;
+    padding: 1em;
+}
+
 /* Sign Up Form */
 
-.signup-form, .login-form {
+.signup-form, .login-form, .join-the-club {
     width: 25%;
     margin: 0 auto;
 }
